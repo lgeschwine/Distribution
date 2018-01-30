@@ -5,19 +5,19 @@ namespace FormaLibre\ReservationBundle\Controller;
 use Claroline\CoreBundle\Event\StrictDispatcher;
 use Claroline\CoreBundle\Persistence\ObjectManager;
 use Ddeboer\DataImport\Reader\CsvReader;
-use Doctrine\ORM\EntityManager;
 use FormaLibre\ReservationBundle\Entity\Resource;
 use FormaLibre\ReservationBundle\Entity\ResourceType;
 use FormaLibre\ReservationBundle\Form\ImportResourcesViaCsvFileType;
 use FormaLibre\ReservationBundle\Manager\ReservationManager;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
+use FormaLibre\ReservationBundle\Serializer\ResourceTypeSerializer;
 use JMS\DiExtraBundle\Annotation as DI;
+use JMS\SecurityExtraBundle\Annotation as SEC;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
-use JMS\SecurityExtraBundle\Annotation as SEC;
 
 /**
  * @DI\Tag("security.secure_service")
@@ -25,43 +25,68 @@ use JMS\SecurityExtraBundle\Annotation as SEC;
  */
 class ReservationAdminController extends Controller
 {
-    private $em;
     private $om;
     private $router;
     private $request;
     private $reservationManager;
     private $eventDispatcher;
+    private $resourceTypeSerializer;
+
     private $resourceTypeRepo;
     private $resourceRightsRepo;
     private $roleRepo;
 
     /**
      * @DI\InjectParams({
-     *      "em"          = @DI\Inject("doctrine.orm.entity_manager"),
-     *      "om"          = @DI\Inject("claroline.persistence.object_manager"),
-     *      "router"      = @DI\Inject("router"),
-     *      "request"     = @DI\Inject("request"),
-     *      "reservationManager" = @DI\Inject("formalibre.manager.reservation_manager"),
-     *      "eventDispatcher"    = @DI\Inject("claroline.event.event_dispatcher")
+     *     "om"                     = @DI\Inject("claroline.persistence.object_manager"),
+     *     "router"                 = @DI\Inject("router"),
+     *     "request"                = @DI\Inject("request"),
+     *     "reservationManager"     = @DI\Inject("formalibre.manager.reservation_manager"),
+     *     "eventDispatcher"        = @DI\Inject("claroline.event.event_dispatcher"),
+     *     "resourceTypeSerializer" = @DI\Inject("claroline.serializer.reservation.resource_type")
      * })
+     *
+     * @param ObjectManager          $om
+     * @param RouterInterface        $router
+     * @param Request                $request
+     * @param ReservationManager     $reservationManager
+     * @param StrictDispatcher       $eventDispatcher
+     * @param ResourceTypeSerializer $resourceTypeSerializer
      */
     public function __construct(
-        EntityManager $em,
         ObjectManager $om,
         RouterInterface $router,
         Request $request,
         ReservationManager $reservationManager,
-        StrictDispatcher $eventDispatcher
+        StrictDispatcher $eventDispatcher,
+        ResourceTypeSerializer $resourceTypeSerializer
     ) {
-        $this->em = $em;
         $this->om = $om;
         $this->router = $router;
         $this->request = $request;
         $this->reservationManager = $reservationManager;
         $this->eventDispatcher = $eventDispatcher;
+        $this->resourceTypeSerializer = $resourceTypeSerializer;
+
         $this->resourceTypeRepo = $this->om->getRepository('FormaLibreReservationBundle:ResourceType');
         $this->resourceRightsRepo = $this->om->getRepository('FormaLibreReservationBundle:ResourceRights');
-        $this->roleRepo = $this->em->getRepository('ClarolineCoreBundle:Role');
+        $this->roleRepo = $this->om->getRepository('ClarolineCoreBundle:Role');
+    }
+
+    /**
+     * @EXT\Route(
+     *      "/admin2",
+     *      name="formalibre_reservation_admin_index_2"
+     * )
+     *
+     * @EXT\Template("FormaLibreReservationBundle:Admin:index2.html.twig")
+     */
+    public function index2Action()
+    {
+        return [
+            'resourcesType' => $this->resourceTypeRepo->findAll(),
+            'resourcesRights' => $this->resourceRightsRepo->findAll(),
+        ];
     }
 
     /**
@@ -75,8 +100,9 @@ class ReservationAdminController extends Controller
     public function indexAction()
     {
         return [
-            'resourcesType' => $this->resourceTypeRepo->findAll(),
-            'resourcesRights' => $this->resourceRightsRepo->findAll(),
+            'resourceTypes' => array_map(function (ResourceType $type) {
+                return $this->resourceTypeSerializer->serialize($type);
+            }, $this->resourceTypeRepo->findAll()),
         ];
     }
 
@@ -93,26 +119,26 @@ class ReservationAdminController extends Controller
     public function addNewResourceTypeAction($name = '')
     {
         if (empty($name)) {
-            return new jsonResponse(array(
+            return new jsonResponse([
                 'error' => 'empty_string',
-            ));
+            ]);
         }
 
-        if ($this->resourceTypeRepo->findOneBy(array('name' => $name))) {
-            return new jsonResponse(array(
+        if ($this->resourceTypeRepo->findOneBy(['name' => $name])) {
+            return new jsonResponse([
                 'error' => 'resource_type_exists',
-            ));
+            ]);
         }
 
         $resourceType = new ResourceType();
         $resourceType->setName($name);
-        $this->em->persist($resourceType);
-        $this->em->flush();
+        $this->om->persist($resourceType);
+        $this->om->flush();
 
-        return new JsonResponse(array(
+        return new JsonResponse([
             'id' => $resourceType->getId(),
             'name' => $resourceType->getName(),
-        ));
+        ]);
     }
 
     /**
@@ -129,7 +155,7 @@ class ReservationAdminController extends Controller
         $form->handleRequest($this->request);
 
         if ($form->isValid()) {
-            $this->em->flush();
+            $this->om->flush();
 
             return new JsonResponse([
                 'name' => $resourceType->getName(),
@@ -155,8 +181,8 @@ class ReservationAdminController extends Controller
         // We have to manually delete the events because doctrine doesn't remove them even if there is a cascade parameter (@see Reservation Entity)
         $this->reservationManager->deleteEventsBoundToResourcesType($resourceType);
 
-        $this->em->remove($resourceType);
-        $this->em->flush();
+        $this->om->remove($resourceType);
+        $this->om->flush();
 
         return new JsonResponse();
     }
@@ -179,8 +205,8 @@ class ReservationAdminController extends Controller
             $resource = $form->getData();
             $resource->setResourceType($resourceType);
 
-            $this->em->persist($resource);
-            $this->em->flush();
+            $this->om->persist($resource);
+            $this->om->flush();
 
             return new JsonResponse([
                 'resourceTypeId' => $resourceType->getId(),
@@ -191,12 +217,12 @@ class ReservationAdminController extends Controller
             ]);
         }
 
-        return $this->render('FormaLibreReservationBundle:Admin:resourceForm.html.twig', array(
+        return $this->render('FormaLibreReservationBundle:Admin:resourceForm.html.twig', [
             'form' => $form->createView(),
-            'action' => $this->router->generate('formalibre_add_new_resource', array('id' => $resourceType->getId())),
+            'action' => $this->router->generate('formalibre_add_new_resource', ['id' => $resourceType->getId()]),
             'editMode' => false,
             'roles' => $this->roleRepo->findBy(['type' => 1]),
-        ));
+        ]);
     }
 
 /**
@@ -215,7 +241,7 @@ class ReservationAdminController extends Controller
         $form->handleRequest($this->request);
 
         if ($form->isValid()) {
-            $this->em->flush();
+            $this->om->flush();
 
             return new JsonResponse([
                 'id' => $resource->getId(),
@@ -231,14 +257,14 @@ class ReservationAdminController extends Controller
             $resourcesRightsArray[$resourceRights->getRole()->getId()] = $resourceRights->getMask();
         }
 
-        return $this->render('FormaLibreReservationBundle:Admin:resourceForm.html.twig', array(
+        return $this->render('FormaLibreReservationBundle:Admin:resourceForm.html.twig', [
             'resource' => $resource,
             'form' => $form->createView(),
             'action' => $this->router->generate('formalibre_modification_resource', ['id' => $resource->getId()]),
             'editMode' => true,
             'roles' => $roles,
             'resourcesRights' => $resourcesRightsArray,
-        ));
+        ]);
     }
 
     /**
@@ -253,8 +279,8 @@ class ReservationAdminController extends Controller
         // We have to manually delete the events because doctrine doesn't remove them even if there is a cascade parameter (@see Reservation Entity)
         $this->reservationManager->deleteEventsBoundToResource($resource);
 
-        $this->em->remove($resource);
-        $this->em->flush();
+        $this->om->remove($resource);
+        $this->om->flush();
 
         return new JsonResponse();
     }
@@ -271,7 +297,7 @@ class ReservationAdminController extends Controller
     {
         $tempMaskByRole = explode(',', $rolesList);
 
-        $maskByRole = array();
+        $maskByRole = [];
 
         foreach ($tempMaskByRole as $oneMaskByRole) {
             $insideOneMaskByRole = explode(':', $oneMaskByRole);
@@ -291,7 +317,7 @@ class ReservationAdminController extends Controller
             }
         }
 
-        $this->em->flush();
+        $this->om->flush();
 
         return new JsonResponse();
     }
@@ -345,8 +371,8 @@ class ReservationAdminController extends Controller
             if (!$resourceType) {
                 $resourceType = new ResourceType();
                 $resourceType->setName($resourceTypeName);
-                $this->em->persist($resourceType);
-                $this->em->flush();
+                $this->om->persist($resourceType);
+                $this->om->flush();
 
                 $data['resourcesTypes'][] = [
                     'id' => $resourceType->getId(),
@@ -364,8 +390,8 @@ class ReservationAdminController extends Controller
                 ->setQuantity($quantity)
                 ->setColor($color)
             ;
-            $this->em->persist($resource);
-            $this->em->flush();
+            $this->om->persist($resource);
+            $this->om->flush();
 
             $data['resources'][] = [
                 'resourceTypeId' => $resourceType->getId(),

@@ -72,6 +72,7 @@
     "confirm_resource_deletion_title": "Deleting a resource",
     "confirm_resource_type_deletion_content": "Are you sure you want to delete this resource type? This action will delete all the resources belonging to this resource type as well as the possible reservations in progress.",
     "confirm_resource_type_deletion_title": "Deleting resource type",
+    "create_a_resource": "Create a resource",
     "delete_resource": "Deleting the resource",
     "delete_resource_type": "Deleting this resource type",
     "error.empty_input": "This field may not be empty.",
@@ -119,5 +120,6 @@
     "picker.select_decade": "Select a decade",
     "picker.select_month": "Select a month",
     "picker.select_year": "Select a year",
+    "quantity": "Quantity",
     "reservation": "Reservation"
 }

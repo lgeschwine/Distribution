@@ -2,6 +2,7 @@
 
 namespace FormaLibre\ReservationBundle\Entity;
 
+use Claroline\CoreBundle\Entity\Organization\Organization;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
@@ -86,9 +87,18 @@ class Resource
      */
     private $color;
 
+    /**
+     * @ORM\ManyToMany(
+     *     targetEntity="Claroline\CoreBundle\Entity\Organization\Organization"
+     * )
+     * @ORM\JoinTable(name="formalibre_reservation_resource_organizations")
+     */
+    protected $organizations;
+
     public function __construct()
     {
         $this->resourceRights = new ArrayCollection();
+        $this->organizations = new ArrayCollection();
     }
 
     public function getId()
@@ -218,5 +228,33 @@ class Resource
     public function getColor()
     {
         return $this->color;
+    }
+
+    public function getOrganizations()
+    {
+        return $this->organizations->toArray();
+    }
+
+    public function addOrganization(Organization $organization)
+    {
+        if (!$this->organizations->contains($organization)) {
+            $this->organizations->add($organization);
+        }
+
+        return $this;
+    }
+
+    public function removeOrganization(Organization $organization)
+    {
+        if ($this->organizations->contains($organization)) {
+            $this->organizations->removeElement($organization);
+        }
+
+        return $this;
+    }
+
+    public function emptyOrganizations()
+    {
+        $this->organizations->clear();
     }
 }
