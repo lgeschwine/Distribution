@@ -1,7 +1,13 @@
 {
   "webpack": {
     "entry": {
-      "admin-tool": "administration/resource"
+      "admin-tool": "administration/tool"
+    }
+  },
+
+  "styles": {
+    "entry": {
+      "admin-tool": "administration/tool.less"
     }
   }
 }

@@ -52,7 +52,7 @@ class ResourceSerializer
     public function serialize(Resource $resource)
     {
         return [
-            'id' => $resource->getId(),
+            'id' => $resource->getUuid(),
             'name' => $resource->getName(),
             'resourceType' => $this->resourceTypeSerializer->serialize($resource->getResourceType()),
             'maxTimeReservation' => $resource->getMaxTimeReservation(),
@@ -78,7 +78,7 @@ class ResourceSerializer
             $resource = new Resource();
         }
         if (isset($data['resourceType'])) {
-            $resourceType = $this->resourceTypeRepo->findOneBy(['id' => $data['resourceType']['id']]);
+            $resourceType = $this->resourceTypeRepo->findOneBy(['uuid' => $data['resourceType']['id']]);
             $resource->setResourceType($resourceType);
         }
         if (isset($data['name'])) {

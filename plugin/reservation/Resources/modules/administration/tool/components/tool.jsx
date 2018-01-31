@@ -11,11 +11,13 @@ import {
   PageHeader,
   RoutedPageContainer
 } from '#/main/core/layout/page'
+import {actions as modalActions} from '#/main/core/layout/modal/actions'
 import {FormPageActionsContainer} from '#/main/core/data/form/containers/page-actions.jsx'
 
 import {actions} from '#/plugin/reservation/administration/resource/actions'
 import {Resources} from '#/plugin/reservation/administration/resource/components/resources.jsx'
 import {ResourceForm} from '#/plugin/reservation/administration/resource/components/resource-form.jsx'
+import {MODAL_RESOURCE_TYPES} from '#/plugin/reservation/administration/resource-type/components/modal/resource-types-modal.jsx'
 
 const ToolActions = props =>
   <PageActions>
@@ -28,12 +30,21 @@ const ToolActions = props =>
       opened={!!matchPath(props.location.pathname, {path: '/form'})}
       open={{
         icon: 'fa fa-plus',
-        label: trans('create_a_resource', {}, 'reservation'),
+        label: trans('add_resource', {}, 'reservation'),
         action: '#/form'
       }}
       cancel={{
         action: () => navigate('/')
       }}
+    />
+    <PageAction
+      id="resources-types-list"
+      icon="fa fa-bars"
+      title={trans('resource_types', {}, 'reservation')}
+      action={() => props.showModal(
+        MODAL_RESOURCE_TYPES,
+        {}
+      )}
     />
   </PageActions>
 
@@ -53,7 +64,7 @@ const Tool = props =>
       title={trans('admin_resources_reservation', {}, 'tools')}
       key="tool-page-header"
     >
-      <ToolPageActions/>
+      <ToolPageActions {...props}/>
     </PageHeader>
     <PageContent key="tool-page-content">
       <Routes
@@ -81,6 +92,9 @@ const ReservationTool = connect(
   dispatch => ({
     openForm(id = null) {
       dispatch(actions.openForm('resourceForm', id))
+    },
+    showModal(type, props) {
+      dispatch(modalActions.showModal(type, props))
     }
   })
 )(Tool)

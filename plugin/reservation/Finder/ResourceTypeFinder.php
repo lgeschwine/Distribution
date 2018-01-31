@@ -16,25 +16,20 @@ use Doctrine\ORM\QueryBuilder;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
- * @DI\Service("claroline.api.finder.reservation.resource")
+ * @DI\Service("claroline.api.finder.reservation.resource_type")
  * @DI\Tag("claroline.finder")
  */
-class ResourceFinder implements FinderInterface
+class ResourceTypeFinder implements FinderInterface
 {
     public function getClass()
     {
-        return 'FormaLibre\ReservationBundle\Entity\Resource';
+        return 'FormaLibre\ReservationBundle\Entity\ResourceType';
     }
 
     public function configureQueryBuilder(QueryBuilder $qb, array $searches = [], array $sortBy = null)
     {
         foreach ($searches as $filterName => $filterValue) {
             switch ($filterName) {
-                case 'resourceType.name':
-                    $qb->join('obj.resourceType', 't');
-                    $qb->andWhere('t.name = :resourceTypeName');
-                    $qb->setParameter('resourceTypeName', $filterValue);
-                    break;
                 default:
                     if (is_bool($filterValue)) {
                         $qb->andWhere("obj.{$filterName} = :{$filterName}");

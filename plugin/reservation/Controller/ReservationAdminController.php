@@ -102,7 +102,7 @@ class ReservationAdminController extends Controller
         return [
             'resourceTypes' => array_map(function (ResourceType $type) {
                 return $this->resourceTypeSerializer->serialize($type);
-            }, $this->resourceTypeRepo->findAll()),
+            }, $this->resourceTypeRepo->findBy([], ['name' => 'ASC'])),
         ];
     }
 

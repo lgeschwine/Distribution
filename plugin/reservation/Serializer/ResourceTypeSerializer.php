@@ -19,7 +19,7 @@ class ResourceTypeSerializer
     public function serialize(ResourceType $resourceType)
     {
         return [
-            'id' => $resourceType->getId(),
+            'id' => $resourceType->getUuid(),
             'name' => $resourceType->getName(),
         ];
     }
