@@ -13,11 +13,12 @@ namespace FormaLibre\ReservationBundle\Controller\API;
 
 use Claroline\CoreBundle\Annotations\ApiMeta;
 use Claroline\CoreBundle\Controller\APINew\AbstractCrudController;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
+use Claroline\CoreBundle\Controller\APINew\Model\HasOrganizationsTrait;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 /**
  * @ApiMeta(class="FormaLibre\ReservationBundle\Entity\Resource")
- * @EXT\Route("/reservationresource")
+ * @Route("/reservationresource")
  */
 class ResourceController extends AbstractCrudController
 {
@@ -25,4 +26,6 @@ class ResourceController extends AbstractCrudController
     {
         return 'reservation_resource';
     }
+
+    use HasOrganizationsTrait;
 }

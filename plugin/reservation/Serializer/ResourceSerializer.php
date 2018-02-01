@@ -99,7 +99,9 @@ class ResourceSerializer
         if (isset($data['color'])) {
             $resource->setColor($data['color']);
         }
-        $this->deserializeOrganizations($resource, $data['organizations']);
+        if (isset($data['organizations'])) {
+            $this->deserializeOrganizations($resource, $data['organizations']);
+        }
 
         return $resource;
     }

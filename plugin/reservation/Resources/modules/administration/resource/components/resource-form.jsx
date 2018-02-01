@@ -3,8 +3,15 @@ import {PropTypes as T} from 'prop-types'
 import {connect} from 'react-redux'
 
 import {trans} from '#/main/core/translation'
-import {FormContainer} from '#/main/core/data/form/containers/form.jsx'
 import {select as formSelect} from '#/main/core/data/form/selectors'
+import {actions as modalActions} from '#/main/core/layout/modal/actions'
+import {MODAL_DATA_PICKER} from '#/main/core/data/list/modals'
+import {FormContainer} from '#/main/core/data/form/containers/form.jsx'
+import {FormSections, FormSection} from '#/main/core/layout/form/components/form-sections.jsx'
+import {DataListContainer} from '#/main/core/data/list/containers/data-list.jsx'
+import {OrganizationList} from '#/main/core/administration/user/organization/components/organization-list.jsx'
+
+import {actions} from '#/plugin/reservation/administration/resource/actions'
 
 const Resource = props => {
   const choices = {}
@@ -35,7 +42,7 @@ const Resource = props => {
               }
             }, {
               name: 'description',
-              type: 'text',
+              type: 'html',
               label: trans('description', {}, 'platform')
             }, {
               name: 'localisation',
@@ -57,7 +64,37 @@ const Resource = props => {
           ]
         }
       ]}
-    />
+    >
+      <FormSections level={3}>
+        <FormSection
+          id="resource-organizations"
+          icon="fa fa-fw fa-building"
+          title={trans('organizations', {}, 'platform')}
+          disabled={props.new}
+          actions={[
+            {
+              icon: 'fa fa-fw fa-plus',
+              label: trans('add_organizations', {}, 'platform'),
+              action: () => props.pickOrganizations(props.resource.id)
+            }
+          ]}
+        >
+          <DataListContainer
+            name="resourceForm.organizations"
+            open={OrganizationList.open}
+            fetch={{
+              url: ['apiv2_reservationresource_list_organizations', {id: props.resource.id}],
+              autoload: props.resource.id && !props.new
+            }}
+            delete={{
+              url: ['apiv2_reservationresource_remove_organizations', {id: props.resource.id}]
+            }}
+            definition={OrganizationList.definition}
+            card={OrganizationList.card}
+          />
+        </FormSection>
+      </FormSections>
+    </FormContainer>
   )
 }
 
@@ -72,7 +109,25 @@ Resource.propTypes = {
 const ResourceForm = connect(
   state => ({
     new: formSelect.isNew(formSelect.form(state, 'resourceForm')),
+    resource: formSelect.data(formSelect.form(state, 'resourceForm')),
     resourceTypes: state.resourceTypes
+  }),
+  dispatch =>({
+    pickOrganizations(resourceId) {
+      dispatch(modalActions.showModal(MODAL_DATA_PICKER, {
+        icon: 'fa fa-fw fa-buildings',
+        title: trans('add_organizations', {}, 'platform'),
+        confirmText: trans('add', {}, 'platform'),
+        name: 'organizationsPicker',
+        definition: OrganizationList.definition,
+        card: OrganizationList.card,
+        fetch: {
+          url: ['apiv2_organization_list'],
+          autoload: true
+        },
+        handleSelect: (selected) => dispatch(actions.addOrganizations(resourceId, selected))
+      }))
+    }
   })
 )(Resource)
 

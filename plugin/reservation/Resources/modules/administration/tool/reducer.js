@@ -6,6 +6,7 @@ import {reducer as resourceTypeReducer} from '#/plugin/reservation/administratio
 const reducer = makePageReducer({}, {
   resources: resourceReducer.resources,
   resourceForm: resourceReducer.resourceForm,
+  organizationsPicker: resourceReducer.organizationsPicker,
   resourceTypes: resourceTypeReducer.resourceTypes
 })
 
