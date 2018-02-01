@@ -12,8 +12,11 @@
 namespace FormaLibre\ReservationBundle\Finder;
 
 use Claroline\CoreBundle\API\FinderInterface;
+use Claroline\CoreBundle\Entity\Organization\Organization;
 use Doctrine\ORM\QueryBuilder;
 use JMS\DiExtraBundle\Annotation as DI;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * @DI\Service("claroline.api.finder.reservation.resource")
@@ -21,6 +24,28 @@ use JMS\DiExtraBundle\Annotation as DI;
  */
 class ResourceFinder implements FinderInterface
 {
+    private $authChecker;
+    private $tokenStorage;
+
+    /**
+     * ResourceFinder constructor.
+     *
+     * @DI\InjectParams({
+     *     "authChecker"  = @DI\Inject("security.authorization_checker"),
+     *     "tokenStorage" = @DI\Inject("security.token_storage")
+     * })
+     *
+     * @param AuthorizationCheckerInterface $authChecker
+     * @param TokenStorageInterface         $tokenStorage
+     */
+    public function __construct(
+        AuthorizationCheckerInterface $authChecker,
+        TokenStorageInterface $tokenStorage
+    ) {
+        $this->authChecker = $authChecker;
+        $this->tokenStorage = $tokenStorage;
+    }
+
     public function getClass()
     {
         return 'FormaLibre\ReservationBundle\Entity\Resource';
@@ -28,6 +53,15 @@ class ResourceFinder implements FinderInterface
 
     public function configureQueryBuilder(QueryBuilder $qb, array $searches = [], array $sortBy = null)
     {
+        if (!$this->authChecker->isGranted('ROLE_ADMIN')) {
+            $currentUser = $this->tokenStorage->getToken()->getUser();
+            $qb->join('obj.organizations', 'o');
+            $qb->andWhere('o.id IN (:organizationsIds)');
+            $qb->setParameter('organizationsIds', array_map(function (Organization $organization) {
+                return $organization->getId();
+            }, $currentUser->getOrganizations()));
+        }
+
         foreach ($searches as $filterName => $filterValue) {
             switch ($filterName) {
                 case 'resourceType.name':
