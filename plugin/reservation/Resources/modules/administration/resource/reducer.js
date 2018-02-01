@@ -4,7 +4,7 @@ import {makeListReducer} from '#/main/core/data/list/reducer'
 const reducer = {
   resources: makeListReducer('resources', {}, {}),
   resourceForm: makeFormReducer('resourceForm', {}, {
-    organizations: makeListReducer('resourceForm.organizations', {}, {})
+    organizations: makeListReducer('resourceForm.organizations')
   }),
   organizationsPicker: makeListReducer('organizationsPicker')
 }

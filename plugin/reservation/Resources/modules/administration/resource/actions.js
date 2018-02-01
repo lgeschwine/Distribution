@@ -12,11 +12,13 @@ actions.openForm = (formName, id = null) => (dispatch) => {
         url: ['apiv2_reservationresource_get', {id}],
         success: (response, dispatch) => {
           dispatch(formActions.resetForm(formName, response, false))
+          dispatch(listActions.invalidateData('resourceForm.organizations'))
         }
       }
     })
   } else {
     dispatch(formActions.resetForm(formName, {}, true))
+    dispatch(listActions.invalidateData('resourceForm.organizations'))
   }
 }
 
