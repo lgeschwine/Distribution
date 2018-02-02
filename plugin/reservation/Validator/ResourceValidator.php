@@ -9,11 +9,20 @@ use JMS\DiExtraBundle\Annotation as DI;
  * @DI\Service()
  * @DI\Tag("claroline.validator")
  */
-class ResourceTypeValidator implements ValidatorInterface
+class ResourceValidator implements ValidatorInterface
 {
     public function validate($data)
     {
-        return [];
+        $errors = [];
+
+        if (!isset($data['name']) || empty($data['name'])) {
+            $errors[] = [
+                'path' => 'name',
+                'message' => 'The name cannot be empty.',
+            ];
+        }
+
+        return $errors;
     }
 
     public function validateBulk(array $users)
@@ -22,13 +31,11 @@ class ResourceTypeValidator implements ValidatorInterface
 
     public function getUniqueFields()
     {
-        return [
-          'name' => 'name',
-        ];
+        return [];
     }
 
     public function getClass()
     {
-        return 'FormaLibre\ReservationBundle\Entity\ResourceType';
+        return 'FormaLibre\ReservationBundle\Entity\Resource';
     }
 }

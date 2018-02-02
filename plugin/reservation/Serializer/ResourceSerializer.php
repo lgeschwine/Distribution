@@ -85,7 +85,7 @@ class ResourceSerializer
             $resource->setName($data['name']);
         }
         if (isset($data['maxTimeReservation'])) {
-            $resource->setMaxTimeReservation($data['type']);
+            $resource->setMaxTimeReservation($data['maxTimeReservation']);
         }
         if (isset($data['description'])) {
             $resource->setDescription($data['description']);

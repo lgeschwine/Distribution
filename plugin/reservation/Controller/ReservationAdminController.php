@@ -2,6 +2,7 @@
 
 namespace FormaLibre\ReservationBundle\Controller;
 
+use Claroline\CoreBundle\Entity\User;
 use Claroline\CoreBundle\Event\StrictDispatcher;
 use Claroline\CoreBundle\Persistence\ObjectManager;
 use Ddeboer\DataImport\Reader\CsvReader;
@@ -94,12 +95,15 @@ class ReservationAdminController extends Controller
      *      "/admin",
      *      name="formalibre_reservation_admin_index"
      * )
-     *
+     * @EXT\ParamConverter("user", converter="current_user", options={"allowAnonymous"=true})
      * @EXT\Template("FormaLibreReservationBundle:Admin:index.html.twig")
+     *
+     * @param User $user
      */
-    public function indexAction()
+    public function indexAction(User $user = null)
     {
         return [
+            'isAdmin' => !is_null($user) ? $user->hasRole('ROLE_ADMIN') : false,
             'resourceTypes' => array_map(function (ResourceType $type) {
                 return $this->resourceTypeSerializer->serialize($type);
             }, $this->resourceTypeRepo->findBy([], ['name' => 'ASC'])),

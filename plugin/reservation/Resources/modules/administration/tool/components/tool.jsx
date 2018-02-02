@@ -11,6 +11,7 @@ import {
   PageHeader,
   RoutedPageContainer
 } from '#/main/core/layout/page'
+import {actions as listActions} from '#/main/core/data/list/actions'
 import {actions as modalActions} from '#/main/core/layout/modal/actions'
 import {FormPageActionsContainer} from '#/main/core/data/form/containers/page-actions.jsx'
 
@@ -34,21 +35,27 @@ const ToolActions = props =>
         action: '#/form'
       }}
       cancel={{
-        action: () => navigate('/')
+        action: () => {
+          props.invalidateData('resources')
+          navigate('/')
+        }
       }}
     />
-    <PageAction
-      id="resources-types-list"
-      icon="fa fa-bars"
-      title={trans('resource_types', {}, 'reservation')}
-      action={() => props.showModal(
-        MODAL_RESOURCE_TYPES,
-        {}
-      )}
-    />
+    {props.isAdmin &&
+      <PageAction
+        id="resources-types-list"
+        icon="fa fa-bars"
+        title={trans('resource_types', {}, 'reservation')}
+        action={() => props.showModal(
+          MODAL_RESOURCE_TYPES,
+          {}
+        )}
+      />
+    }
   </PageActions>
 
 ToolActions.propTypes = {
+  isAdmin: T.bool.isRequired,
   location: T.shape({
     pathname: T.string
   }).isRequired
@@ -84,17 +91,25 @@ const Tool = props =>
   </RoutedPageContainer>
 
 Tool.propTypes = {
-  openForm: T.func.isRequired
+  isAdmin: T.bool.isRequired,
+  openForm: T.func.isRequired,
+  showModal: T.func.isRequired,
+  invalidateData: T.func.isRequired,
 }
 
 const ReservationTool = connect(
-  () => ({}),
+  (state) => ({
+    isAdmin: state.isAdmin
+  }),
   dispatch => ({
     openForm(id = null) {
       dispatch(actions.openForm('resourceForm', id))
     },
     showModal(type, props) {
       dispatch(modalActions.showModal(type, props))
+    },
+    invalidateData(name) {
+      dispatch(listActions.invalidateData(name))
     }
   })
 )(Tool)

@@ -18,6 +18,7 @@
 {% block content %}
     <div
         class="page-container reservation-tool-container"
+        data-is-admin="{{ isAdmin | json_encode | raw | escape }}"
         data-resource-types="{{ resourceTypes | json_encode | raw | escape }}"
     >
     </div>
