@@ -17,7 +17,7 @@ actions.openForm = (formName, id = null) => (dispatch) => {
       }
     })
   } else {
-    dispatch(formActions.resetForm(formName, {}, true))
+    dispatch(formActions.resetForm(formName, {name: null, quantity: 1}, true))
     dispatch(listActions.invalidateData('resourceForm.organizations'))
   }
 }
