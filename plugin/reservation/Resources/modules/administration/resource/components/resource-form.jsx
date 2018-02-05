@@ -87,7 +87,7 @@ const Resource = props => {
               type: 'html',
               label: trans('description', {}, 'platform')
             }, {
-              name: 'localisation',
+              name: 'localization',
               type: 'string',
               label: trans('location', {}, 'platform')
             }, {
@@ -148,10 +148,30 @@ const Resource = props => {
             }
           ]}
         >
-          <ResourceRigths
-            resourceRights={props.resource.resourceRights ? props.resource.resourceRights : []}
-            onChange={props.editResourceRights}
-          />
+          {props.resource.resourceRights && props.resource.resourceRights.length > 0 ?
+            <ResourceRigths
+              resourceRights={props.resource.resourceRights ? props.resource.resourceRights : []}
+              onChange={props.editResourceRights}
+            /> :
+            <div className="alert alert-warning">
+              {trans('no_rights_configured', {}, 'reservation')}
+            </div>
+          }
+          <div>
+            {`${trans('agenda.resource.cannot_see', {}, 'reservation')}: ${trans('agenda.resource.cannot_see_info', {}, 'reservation')}`}
+          </div>
+          <div>
+            {`${trans('agenda.resource.see', {}, 'reservation')}: ${trans('agenda.resource.see_info', {}, 'reservation')}`}
+          </div>
+          <div>
+            {`${trans('agenda.resource.book', {}, 'reservation')}: ${trans('agenda.resource.book_info', {}, 'reservation')}`}
+          </div>
+          <div>
+            {`${trans('agenda.resource.admin', {}, 'reservation')}: ${trans('agenda.resource.admin_info', {}, 'reservation')}`}
+          </div>
+          <div>
+            <b>{trans('agenda.resource.rights_info', {}, 'reservation')}</b>
+          </div>
         </FormSection>
       </FormSections>
     </FormContainer>
