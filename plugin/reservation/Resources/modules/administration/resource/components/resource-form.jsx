@@ -56,13 +56,13 @@ const ResourceRigths = props =>
   </ul>
 
 ResourceRigths.propTypes = {
-  resourceRights: T.shape({
+  resourceRights: T.arrayOf(T.shape({
     id: T.string.isRequired,
     mask: T.number.isRequired,
     role: T.shape({
       translationKey: T.string.isRequired
     }).isRequired
-  }).isRequired,
+  })).isRequired,
   onChange: T.func.isRequired
 }
 
