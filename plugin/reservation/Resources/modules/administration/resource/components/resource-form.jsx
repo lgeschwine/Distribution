@@ -13,6 +13,48 @@ import {OrganizationList} from '#/main/core/administration/user/organization/com
 
 import {actions} from '#/plugin/reservation/administration/resource/actions'
 
+const ResourceRigths = props =>
+  <ul className="list-group">
+    {props.resourceRights.map(rr =>
+      <li
+        key={`permissions-${rr.id}`}
+        className="list-group-item resource-rights-item"
+      >
+        {trans(rr.role.translationKey, {}, 'platform')}
+        <span className="btn-group">
+          <button
+            type="button"
+            className={`btn ${rr.mask === 0 ? 'btn-primary' : 'btn-default'}`}
+            onClick={() => props.onChange(rr, 0)}
+          >
+            {trans('agenda.resource.cannot_see', {}, 'reservation')}
+          </button>
+          <button
+            type="button"
+            className={`btn ${rr.mask === 1 ? 'btn-primary' : 'btn-default'}`}
+            onClick={() => props.onChange(rr, 1)}
+          >
+            {trans('agenda.resource.see', {}, 'reservation')}
+          </button>
+          <button
+            type="button"
+            className={`btn ${rr.mask === 3 ? 'btn-primary' : 'btn-default'}`}
+            onClick={() => props.onChange(rr, 3)}
+          >
+            {trans('agenda.resource.book', {}, 'reservation')}
+          </button>
+          <button
+            type="button"
+            className={`btn ${rr.mask === 7 ? 'btn-primary' : 'btn-default'}`}
+            onClick={() => props.onChange(rr, 7)}
+          >
+            {trans('agenda.resource.admin', {}, 'reservation')}
+          </button>
+        </span>
+      </li>
+    )}
+  </ul>
+
 const Resource = props => {
   const choices = {}
   props.resourceTypes.reduce((o, rt) => Object.assign(o, {[rt.id]: rt.name}), choices)
@@ -93,6 +135,24 @@ const Resource = props => {
             card={OrganizationList.card}
           />
         </FormSection>
+        <FormSection
+          id="resource-rights"
+          icon="fa fa-fw fa-unlock"
+          title={trans('permissions', {}, 'platform')}
+          disabled={props.new}
+          actions={[
+            {
+              icon: 'fa fa-fw fa-plus',
+              label: trans('add_roles', {}, 'platform'),
+              action: () => props.pickRoles(props.resource.id, props.resource.resourceRights ? props.resource.resourceRights : [])
+            }
+          ]}
+        >
+          <ResourceRigths
+            resourceRights={props.resource.resourceRights ? props.resource.resourceRights : []}
+            onChange={props.editResourceRights}
+          />
+        </FormSection>
       </FormSections>
     </FormContainer>
   )
@@ -103,7 +163,10 @@ Resource.propTypes = {
   resourceTypes: T.arrayOf(T.shape({
     id: T.string.isRequired,
     name: T.string.isRequired
-  }))
+  })),
+  editResourceRights: T.func.isRequired,
+  pickOrganizations: T.func.isRequired,
+  pickRoles: T.func.isRequired
 }
 
 const ResourceForm = connect(
@@ -113,9 +176,12 @@ const ResourceForm = connect(
     resourceTypes: state.resourceTypes
   }),
   dispatch =>({
+    editResourceRights(rights, value) {
+      dispatch(actions.editResourceRights(rights, value))
+    },
     pickOrganizations(resourceId) {
       dispatch(modalActions.showModal(MODAL_DATA_PICKER, {
-        icon: 'fa fa-fw fa-buildings',
+        icon: 'fa fa-fw fa-building',
         title: trans('add_organizations', {}, 'platform'),
         confirmText: trans('add', {}, 'platform'),
         name: 'organizationsPicker',
@@ -126,6 +192,32 @@ const ResourceForm = connect(
           autoload: true
         },
         handleSelect: (selected) => dispatch(actions.addOrganizations(resourceId, selected))
+      }))
+    },
+    pickRoles(resourceId, resourceRights) {
+      dispatch(modalActions.showModal(MODAL_DATA_PICKER, {
+        icon: 'fa fa-fw fa-id-badge',
+        title: trans('add_roles', {}, 'platform'),
+        confirmText: trans('add', {}, 'platform'),
+        name: 'rolesPicker',
+        definition: [{
+          name: 'translationKey',
+          type: 'translation',
+          label: trans('name', {}, 'platform'),
+          displayed: true
+        }],
+        card: (row) => ({
+          onClick: () => {},
+          poster: null,
+          icon: 'fa fa-id-badge',
+          title: trans(row.translationKey, {}, 'platform'),
+          subtitle: ''
+        }),
+        fetch: {
+          url: ['apiv2_platform_roles_list'],
+          autoload: true
+        },
+        handleSelect: (selected) => dispatch(actions.addRoles(resourceId, resourceRights, selected))
       }))
     }
   })

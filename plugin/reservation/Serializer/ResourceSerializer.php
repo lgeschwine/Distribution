@@ -15,6 +15,7 @@ class ResourceSerializer
 {
     private $organizationSerializer;
     private $resourceTypeSerializer;
+    private $resourceRightsSerializer;
 
     private $organizationRepo;
     private $resourceTypeRepo;
@@ -23,22 +24,26 @@ class ResourceSerializer
      * ResourceSerializer constructor.
      *
      * @DI\InjectParams({
-     *     "om"                     = @DI\Inject("claroline.persistence.object_manager"),
-     *     "organizationSerializer" = @DI\Inject("claroline.serializer.organization"),
-     *     "resourceTypeSerializer" = @DI\Inject("claroline.serializer.reservation.resource_type")
+     *     "om"                       = @DI\Inject("claroline.persistence.object_manager"),
+     *     "organizationSerializer"   = @DI\Inject("claroline.serializer.organization"),
+     *     "resourceTypeSerializer"   = @DI\Inject("claroline.serializer.reservation.resource_type"),
+     *     "resourceRightsSerializer" = @DI\Inject("claroline.serializer.reservation.resource_rights")
      * })
      *
-     * @param ObjectManager          $om
-     * @param OrganizationSerializer $organizationSerializer
-     * @param ResourceTypeSerializer $resourceTypeSerializer
+     * @param ObjectManager            $om
+     * @param OrganizationSerializer   $organizationSerializer
+     * @param ResourceTypeSerializer   $resourceTypeSerializer
+     * @param ResourceRightsSerializer $resourceRightsSerializer
      */
     public function __construct(
         ObjectManager $om,
         OrganizationSerializer $organizationSerializer,
-        ResourceTypeSerializer $resourceTypeSerializer
+        ResourceTypeSerializer $resourceTypeSerializer,
+        ResourceRightsSerializer $resourceRightsSerializer
     ) {
         $this->organizationSerializer = $organizationSerializer;
         $this->resourceTypeSerializer = $resourceTypeSerializer;
+        $this->resourceRightsSerializer = $resourceRightsSerializer;
 
         $this->organizationRepo = $om->getRepository('ClarolineCoreBundle:Organization\Organization');
         $this->resourceTypeRepo = $om->getRepository('FormaLibreReservationBundle:ResourceType');
@@ -61,6 +66,7 @@ class ResourceSerializer
             'quantity' => $resource->getQuantity(),
             'color' => $resource->getColor(),
             'organizations' => $this->getOrganizations($resource),
+            'resourceRights' => $this->getResourceRights($resource),
         ];
     }
 
@@ -115,6 +121,17 @@ class ResourceSerializer
         }
 
         return $organizations;
+    }
+
+    private function getResourceRights(Resource $resource)
+    {
+        $resourceRights = [];
+
+        foreach ($resource->getResourceRights() as $rights) {
+            $resourceRights[] = $this->resourceRightsSerializer->serialize($rights);
+        }
+
+        return $resourceRights;
     }
 
     private function deserializeOrganizations(Resource $resource, $organizationsData)

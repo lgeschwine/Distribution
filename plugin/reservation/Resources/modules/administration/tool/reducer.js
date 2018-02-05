@@ -9,6 +9,7 @@ const reducer = makePageReducer({}, {
   resources: resourceReducer.resources,
   resourceForm: resourceReducer.resourceForm,
   organizationsPicker: resourceReducer.organizationsPicker,
+  rolesPicker: resourceReducer.rolesPicker,
   resourceTypes: resourceTypeReducer.resourceTypes
 })
 

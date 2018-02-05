@@ -1,5 +1,5 @@
-import {makeActionCreator} from '#/main/core/scaffolding/actions'
 import {generateUrl} from '#/main/core/api/router'
+import {makeActionCreator} from '#/main/core/scaffolding/actions'
 import {API_REQUEST} from '#/main/core/api/actions'
 
 const RESOURCE_TYPE_ADD = 'RESOURCE_TYPE_ADD'

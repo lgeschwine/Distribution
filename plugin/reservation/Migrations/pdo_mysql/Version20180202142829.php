@@ -8,9 +8,9 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated migration based on mapping information: modify it with caution.
  *
- * Generation date: 2018/01/30 02:17:57
+ * Generation date: 2018/02/02 02:28:30
  */
-class Version20180130141756 extends AbstractMigration
+class Version20180202142829 extends AbstractMigration
 {
     public function up(Schema $schema)
     {
@@ -41,6 +41,9 @@ class Version20180130141756 extends AbstractMigration
             CHANGE name name VARCHAR(255) NOT NULL
         ');
         $this->addSql('
+            UPDATE formalibre_reservation_resource_type SET uuid = (SELECT UUID())
+        ');
+        $this->addSql('
             CREATE UNIQUE INDEX UNIQ_E6D40EF9D17F50A6 ON formalibre_reservation_resource_type (uuid)
         ');
         $this->addSql('
@@ -53,23 +56,33 @@ class Version20180130141756 extends AbstractMigration
             CHANGE max_time_reservation max_time_reservation VARCHAR(255) DEFAULT NULL
         ');
         $this->addSql('
+            UPDATE formalibre_reservation_resource SET uuid = (SELECT UUID())
+        ');
+        $this->addSql('
             CREATE UNIQUE INDEX UNIQ_7AAF1416D17F50A6 ON formalibre_reservation_resource (uuid)
+        ');
+        $this->addSql('
+            ALTER TABLE formalibre_reservation_resource_rights 
+            ADD uuid VARCHAR(36) NOT NULL
+        ');
+        $this->addSql('
+            UPDATE formalibre_reservation_resource_rights SET uuid = (SELECT UUID())
+        ');
+        $this->addSql('
+            CREATE UNIQUE INDEX UNIQ_92EF9746D17F50A6 ON formalibre_reservation_resource_rights (uuid)
+        ');
+        $this->addSql('
+            CREATE UNIQUE INDEX reservation_unique_resource_rights ON formalibre_reservation_resource_rights (role_id, resource_id)
         ');
         $this->addSql('
             ALTER TABLE formalibre_reservation 
             ADD uuid VARCHAR(36) NOT NULL
         ');
         $this->addSql('
-            CREATE UNIQUE INDEX UNIQ_71058F70D17F50A6 ON formalibre_reservation (uuid)
-        ');
-        $this->addSql('
-            UPDATE formalibre_reservation_resource_type SET uuid = (SELECT UUID())
-        ');
-        $this->addSql('
-            UPDATE formalibre_reservation_resource SET uuid = (SELECT UUID())
-        ');
-        $this->addSql('
             UPDATE formalibre_reservation SET uuid = (SELECT UUID())
+        ');
+        $this->addSql('
+            CREATE UNIQUE INDEX UNIQ_71058F70D17F50A6 ON formalibre_reservation (uuid)
         ');
     }
 
@@ -93,6 +106,16 @@ class Version20180130141756 extends AbstractMigration
             DROP uuid, 
             CHANGE name name LONGTEXT NOT NULL COLLATE utf8_unicode_ci, 
             CHANGE max_time_reservation max_time_reservation VARCHAR(8) DEFAULT NULL COLLATE utf8_unicode_ci
+        ');
+        $this->addSql('
+            DROP INDEX UNIQ_92EF9746D17F50A6 ON formalibre_reservation_resource_rights
+        ');
+        $this->addSql('
+            DROP INDEX reservation_unique_resource_rights ON formalibre_reservation_resource_rights
+        ');
+        $this->addSql('
+            ALTER TABLE formalibre_reservation_resource_rights 
+            DROP uuid
         ');
         $this->addSql('
             DROP INDEX UNIQ_E6D40EF9D17F50A6 ON formalibre_reservation_resource_type
