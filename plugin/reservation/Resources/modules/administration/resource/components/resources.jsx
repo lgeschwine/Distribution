@@ -4,7 +4,6 @@ import {connect} from 'react-redux'
 
 import {trans} from '#/main/core/translation'
 import {navigate} from '#/main/core/router'
-import {FormSections, FormSection} from '#/main/core/layout/form/components/form-sections.jsx'
 import {DataListContainer} from '#/main/core/data/list/containers/data-list.jsx'
 
 const ResourcesList = props => {

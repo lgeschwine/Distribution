@@ -76,7 +76,7 @@ class ReservationController extends Controller
         $reservations = $this->reservationRepo->findAll();
 
         $events = [];
-        foreach ($reservations as $key => $reservation) {
+        foreach ($reservations as $reservation) {
             if ($this->reservationManager->hasAccess($reservation->getEvent()->getUser(), $reservation->getResource(), $this::SEE)) {
                 $events[] = $this->reservationManager->completeJsonEventWithReservation($reservation);
             }

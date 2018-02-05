@@ -55,6 +55,17 @@ const ResourceRigths = props =>
     )}
   </ul>
 
+ResourceRigths.propTypes = {
+  resourceRights: T.shape({
+    id: T.string.isRequired,
+    mask: T.number.isRequired,
+    role: T.shape({
+      translationKey: T.string.isRequired
+    }).isRequired
+  }).isRequired,
+  onChange: T.func.isRequired
+}
+
 const Resource = props => {
   const choices = {}
   props.resourceTypes.reduce((o, rt) => Object.assign(o, {[rt.id]: rt.name}), choices)
@@ -184,6 +195,10 @@ Resource.propTypes = {
     id: T.string.isRequired,
     name: T.string.isRequired
   })),
+  resource: T.shape({
+    id: T.string,
+    resourceRights: T.array
+  }).isRequired,
   editResourceRights: T.func.isRequired,
   pickOrganizations: T.func.isRequired,
   pickRoles: T.func.isRequired

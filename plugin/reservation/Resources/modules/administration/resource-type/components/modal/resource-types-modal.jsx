@@ -41,6 +41,16 @@ const ResourceTypeForm = props =>
     </span>
   </div>
 
+ResourceTypeForm.propTypes = {
+  resourceType: T.shape({
+    id: T.string,
+    name: T.string
+  }).isRequired,
+  onChange: T.func.isRequired,
+  onSave: T.func.isRequired,
+  onCancel: T.func.isRequired
+}
+
 class ResourceTypes extends Component {
   constructor(props) {
     super(props)
@@ -160,7 +170,13 @@ ResourceTypes.propTypes = {
   resourceTypes: T.arrayOf(T.shape({
     id: T.string.isRequired,
     name: T.string.isRequired
-  }))
+  })),
+  saveResourceType: T.func.isRequired,
+  deleteResourceType: T.func.isRequired,
+  showModal: T.func.isRequired,
+  fadeModal: T.func.isRequired,
+  addFilter: T.func.isRequired,
+  invalidateData: T.func.isRequired
 }
 
 const ResourceTypesModal = connect(

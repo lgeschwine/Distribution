@@ -14,6 +14,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 class CsvResourceValidator extends ConstraintValidator
 {
     private $em;
+
     /**
      * @DI\InjectParams({
      *      "em" = @Di\Inject("doctrine.orm.entity_manager")

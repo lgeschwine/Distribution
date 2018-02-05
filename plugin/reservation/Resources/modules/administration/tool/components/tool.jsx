@@ -58,7 +58,9 @@ ToolActions.propTypes = {
   isAdmin: T.bool.isRequired,
   location: T.shape({
     pathname: T.string
-  }).isRequired
+  }).isRequired,
+  showModal: T.func.isRequired,
+  invalidateData: T.func.isRequired
 }
 
 const ToolPageActions = withRouter(ToolActions)
@@ -94,7 +96,7 @@ Tool.propTypes = {
   isAdmin: T.bool.isRequired,
   openForm: T.func.isRequired,
   showModal: T.func.isRequired,
-  invalidateData: T.func.isRequired,
+  invalidateData: T.func.isRequired
 }
 
 const ReservationTool = connect(

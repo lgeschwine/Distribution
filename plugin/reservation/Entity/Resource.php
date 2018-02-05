@@ -146,6 +146,7 @@ class Resource
 
         return $this;
     }
+
     public function getDescription()
     {
         return $this->description;
