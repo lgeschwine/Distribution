@@ -68,7 +68,7 @@ ResourceRigths.propTypes = {
 
 const Resource = props => {
   const choices = {}
-  props.resourceTypes.reduce((o, rt) => Object.assign(o, {[rt.id]: rt.name}), choices)
+  props.resourceTypes.reduce((o, rt) => Object.assign(o, {[rt.name]: rt.name}), choices)
 
   return (
     <FormContainer
@@ -86,7 +86,7 @@ const Resource = props => {
               label: trans('name', {}, 'platform'),
               required: true
             }, {
-              name: 'resourceType.id',
+              name: 'resourceType.name',
               type: 'enum',
               label: trans('type', {}, 'platform'),
               required: true,

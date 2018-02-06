@@ -83,8 +83,8 @@ class ResourceSerializer
         if (empty($resource)) {
             $resource = new Resource();
         }
-        if (isset($data['resourceType'])) {
-            $resourceType = $this->resourceTypeRepo->findOneBy(['uuid' => $data['resourceType']['id']]);
+        if (isset($data['resourceType']) && isset($data['resourceType']['name'])) {
+            $resourceType = $this->resourceTypeRepo->findOneBy(['name' => $data['resourceType']['name']]);
             $resource->setResourceType($resourceType);
         }
         if (isset($data['name'])) {
@@ -110,6 +110,14 @@ class ResourceSerializer
         }
 
         return $resource;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSchema()
+    {
+        return '#/plugin/reservation/resource.json';
     }
 
     private function getOrganizations(Resource $resource)

@@ -3,6 +3,7 @@ import {makeActionCreator} from '#/main/core/scaffolding/actions'
 import {API_REQUEST} from '#/main/core/api/actions'
 import {actions as formActions} from '#/main/core/data/form/actions'
 import {actions as listActions} from '#/main/core/data/list/actions'
+import {getDataQueryString} from '#/main/core/data/list/utils'
 
 const RESOURCE_RIGHTS_ADD = 'RESOURCE_RIGHTS_ADD'
 const RESOURCE_RIGHTS_UPDATE = 'RESOURCE_RIGHTS_UPDATE'
@@ -81,10 +82,22 @@ actions.editResourceRights = (rights, value) => ({
     },
     success: (data, dispatch) => {
       dispatch(actions.updateResourceRights(rights.id, value))
-      // dispatch(listActions.invalidateData('resources'))
     }
   }
 })
+
+actions.exportResources = (resources) => () => {
+  window.location.href = generateUrl('apiv2_reservationresource_export') + getDataQueryString(resources)
+  // dispatch({
+  //   [API_REQUEST]: {
+  //     url: generateUrl('apiv2_reservationresource_export') + getDataQueryString(resources),
+  //     request: {
+  //       method: 'GET'
+  //     },
+  //     success: (data, dispatch) => {}
+  //   }
+  // })
+}
 
 export {
   actions,

@@ -6,6 +6,8 @@ import {trans} from '#/main/core/translation'
 import {navigate} from '#/main/core/router'
 import {DataListContainer} from '#/main/core/data/list/containers/data-list.jsx'
 
+import {actions} from '#/plugin/reservation/administration/resource/actions'
+
 const ResourcesList = props => {
   const choices = {}
   props.resourceTypes.reduce((o, rt) => Object.assign(o, {[rt.name]: rt.name}), choices)
@@ -61,6 +63,11 @@ const ResourcesList = props => {
           label: trans('edit', {}, 'platform'),
           action: (rows) => navigate(`/form/${rows[0].id}`),
           context: 'row'
+        },
+        {
+          icon: 'fa fa-w fa-sign-out',
+          label: trans('export', {}, 'platform'),
+          action: (rows) => props.exportResources(rows)
         }
       ]}
       card={() => ({
@@ -84,12 +91,18 @@ ResourcesList.propTypes = {
   resourceTypes: T.arrayOf(T.shape({
     id: T.string.isRequired,
     name: T.string.isRequired
-  }))
+  })),
+  exportResources: T.func.isRequired
 }
 
 const Resources = connect(
   state => ({
     resourceTypes: state.resourceTypes
+  }),
+  dispatch =>({
+    exportResources(resources) {
+      dispatch(actions.exportResources(resources))
+    }
   })
 )(ResourcesList)
 
